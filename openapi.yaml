@@ -2,116 +2,123 @@ openapi: 3.0.3
 info:
   title: DropNote API
   version: 1.0.0
-servers:
-  - url: https://api.dropnote.com/v1
-paths:
-  /auth/register:
-    post:
-      summary: Register new user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string }
-                password: { type: string }
-      responses:
-        '201': { description: User registered }
-        '400': { description: Bad request }
+  description: Minimal anonymous note exchange API
 
-  /auth/login:
+servers:
+  - url: http://localhost:5000/api
+
+paths:
+  /auth/session:
     post:
-      summary: Login user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string }
-                password: { type: string }
+      summary: Create anonymous session
       responses:
-        '200': 
-          description: Login success
+        "201":
+          description: Session created
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token: { type: string }
+                $ref: "#/components/schemas/Session"
 
   /notes/drop:
     post:
-      summary: Drop a new anonymous note
-      security: [ { bearerAuth: [] } ]
+      summary: Drop a new note (1 per day)
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                content: { type: string, maxLength: 500 }
+              $ref: "#/components/schemas/NewNote"
       responses:
-        '201': { description: Note created }
-        '400': { description: Invalid request }
-
-  /notes/fetch:
-    get:
-      summary: Fetch today’s received note
-      security: [ { bearerAuth: [] } ]
-      responses:
-        '200':
-          description: Returns a note
+        "201":
+          description: Note created
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  noteId: { type: string }
-                  content: { type: string }
+                $ref: "#/components/schemas/Note"
 
-  /notes/reply/{noteId}:
+  /notes/assigned:
+    get:
+      summary: Get a random assigned note
+      responses:
+        "200":
+          description: Assigned note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /notes/{id}/reply:
     post:
-      summary: Reply to a note
-      security: [ { bearerAuth: [] } ]
+      summary: Reply to a note (only once)
       parameters:
-        - name: noteId
-          in: path
+        - in: path
+          name: id
           required: true
-          schema: { type: string }
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                reply: { type: string, maxLength: 500 }
+              $ref: "#/components/schemas/NewReply"
       responses:
-        '201': { description: Reply created }
-        '400': { description: Invalid request }
-        '404': { description: Note not found }
+        "201":
+          description: Reply created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reply"
 
-  /notes/delete/{noteId}:
+  /gdpr/delete:
     delete:
-      summary: GDPR-style deletion of note & reply
-      security: [ { bearerAuth: [] } ]
-      parameters:
-        - name: noteId
-          in: path
-          required: true
-          schema: { type: string }
+      summary: Delete all my data (GDPR compliance)
       responses:
-        '200': { description: Note deleted }
-        '404': { description: Not found }
+        "200":
+          description: User data deleted
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+  schemas:
+    Session:
+      type: object
+      properties:
+        sessionId:
+          type: string
+
+    NewNote:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 500
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    NewReply:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 300
+
+    Reply:
+      type: object
+      properties:
+        id:
+          type: string
+        noteId:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
