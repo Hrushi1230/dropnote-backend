@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { router as healthRouter } from "./routes/health";
+import { authRouter } from "./routes/auth";
+import { secureDemoRouter } from "./routes/secure-demo";
 
 const app = express();
 
@@ -14,5 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use("/health", healthRouter);
+app.use("/api/auth",authRouter);
+app.use("/api/secure-demo",secureDemoRouter);
 
 export default app;
