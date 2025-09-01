@@ -1,10 +1,11 @@
-import {Schema , model ,Document} from "mongoose";
+import {Schema , model ,Document, Types} from "mongoose";
 
 export interface IUser extends Document {
     email:string;
     passwordHash :string;
-    createdAt :Date;
-    updatedAt :Date;
+    lastDropISO?:string|null;
+    lastReceivedISO?:string|null;
+    receivedNoteId?:Types.ObjectId|null;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -18,6 +19,19 @@ const UserSchema = new Schema<IUser>(
         passwordHash :{
             type :String,
             required:true
+        },
+        lastDropISO :{
+            type:String,
+            default :null
+        },
+        lastReceivedISO :{
+            type : String,
+            default:null
+        },
+        receivedNoteId:{
+            type:Schema.Types.ObjectId,
+            ref:"Note",
+            default:null
         },
     },
     {

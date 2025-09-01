@@ -1,33 +1,36 @@
-// src/models/Note.ts
-import mongoose from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 
-const noteSchema = new mongoose.Schema({
-  content: {
-     type: String, 
-     required: true, 
-     maxlength: 500 
+export interface INote extends Document {
+  senderId: Types.ObjectId;
+  receiverId: Types.ObjectId;
+  content: string;
+  createdAt: Date;
+  expiresAt: Date;
+  replied: boolean;
+}
+
+const NoteSchema = new Schema<INote>(
+  {
+    senderId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
     },
-  authorSession: {
-     type: String, 
-     required: true 
+    receiverId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
     },
-  assignedToSession: { 
-    type: String, 
-    required: false 
-},
-  reply: {
-    content: {
-         type: String
-         },
-    createdAt: { 
-        type: Date 
-    },
+    content: { type: String, required: true, minlength: 1, maxlength: 250 },
+    createdAt: { type: Date, default: Date.now },
+    expiresAt: { type: Date, required: true, index: true },
+    replied: { type: Boolean, default: false },
   },
-  createdAt: { 
-    type: Date, 
-    default: Date.now, 
-    expires: "24h" 
-},
-});
+  { timestamps: true }
+);
+//delete when expiresAt is reached
+NoteSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-export default mongoose.model("Note", noteSchema);
+export const Note = model<INote>("Note", NoteSchema);
