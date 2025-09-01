@@ -4,6 +4,7 @@ import { AuthedRequest, requireAuth } from "../middleware/auth";
 import { Note } from "../models/Note";
 import { Reply } from "../models/Reply";
 import { Types } from "mongoose";
+import { moderateContent } from "../middleware/moderation";
 
 export const notesRouter = Router();
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -35,7 +36,7 @@ async function pickRandomReceiver(excludeUserId: any) {
 }
 //POST /api/notes/drop
 
-notesRouter.post("/drop", requireAuth, async (req: AuthedRequest, res) => {
+notesRouter.post("/drop", requireAuth,moderateContent, async (req: AuthedRequest, res) => {
   try {
     const me = await User.findById(req.user!.id);
     if (!me) return res.status(404).json({ message: "User not found" });
@@ -121,7 +122,7 @@ notesRouter.get("/inbox", requireAuth, async (req: AuthedRequest, res) => {
 
 //POST /api/notes/:id/reply
 
-notesRouter.post("/:id/reply", requireAuth, async (req: AuthedRequest, res) => {
+notesRouter.post("/:id/reply", requireAuth,moderateContent, async (req: AuthedRequest, res) => {
   try {
     const { id } = req.params;
     const { content } = req.body || {};

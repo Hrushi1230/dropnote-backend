@@ -6,6 +6,7 @@ import { router as healthRouter } from "./routes/health";
 import { authRouter } from "./routes/auth";
 import { secureDemoRouter } from "./routes/secure-demo";
 import { notesRouter } from "./routes/notes";
+import { gdprRouter } from "./routes/gdpr";
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use("/health", healthRouter);
 app.use("/api/auth",authRouter);
 app.use("/api/secure-demo",secureDemoRouter);
 app.use("/api/notes", notesRouter);
+app.use("/api/gdpr", gdprRouter);
 
 export default app;

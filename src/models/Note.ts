@@ -25,7 +25,7 @@ const NoteSchema = new Schema<INote>(
     },
     content: { type: String, required: true, minlength: 1, maxlength: 250 },
     createdAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date, required: true, index: true },
+    expiresAt: { type: Date, required: true},
     replied: { type: Boolean, default: false },
   },
   { timestamps: true }
